@@ -1,2 +1,3 @@
 sls-backend/node_modules
 sls-backend/.serverless
+sls-backend/env.yml

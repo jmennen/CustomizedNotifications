@@ -20,6 +20,15 @@ service: sls-backend
 provider:
   name: aws
   runtime: nodejs4.3
+  iamRoleStatements:
+  - Effect: Allow
+    Action:
+      - sns:Publish
+      - sns:CreateTopic
+      - sns:ListTopics
+      - sns:SetTopicAttributes
+      - sns:DeleteTopic
+    Resource: "${file(env.yml):sns.${opt:stage}.notifications.arn}"
 
 # you can overwrite defaults here
 #  stage: dev
