@@ -30,6 +30,7 @@ provider:
       - sns:ListTopics
       - sns:SetTopicAttributes
       - sns:DeleteTopic
+      - sns:Subscribe
     Resource: "${file(env.yml):sns.dev.notifications.arn}"
 
 # you can overwrite defaults here
@@ -74,6 +75,13 @@ functions:
     events:
       - http:
           path: notify
+          method: post
+  subscribe:
+    handler: handler.subscribe
+    description: send a simple notification to an SNS service
+    events:
+      - http:
+          path: subscribe
           method: post
 
 #    The following are a few example events you can configure
