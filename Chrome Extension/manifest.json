@@ -15,7 +15,7 @@
   "permissions": [
     "notifications",
     "gcm",
-    "https://h98rn279xh.execute-api.us-east-1.amazonaws.com/dev/subscribe",
+    "https://kdi53jhksc.execute-api.us-east-1.amazonaws.com/dev/subscribe",
     "storage"
   ]
 }
