@@ -2,8 +2,8 @@
 
 const AWS = require('aws-sdk');
 const SNS = new AWS.SNS();
-const PLATFORM_APPLICATION_ARN = "arn:aws:sns:us-east-1:095380879276:app/GCM/google_notifications";
-const MAIN_TOPIC_ARN = "arn:aws:sns:us-east-1:095380879276:notifications";
+const PLATFORM_APPLICATION_ARN = process.env.platformApplicationArn;
+const MAIN_TOPIC_ARN = process.env.mainTopicArn;
 
 
 module.exports.hello = (event, context, callback) => {

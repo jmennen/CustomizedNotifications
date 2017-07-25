@@ -34,6 +34,7 @@ provider:
       - sns:CreatePlatformEndpoint
     #Resource: "${file(env.yml):sns.dev.notifications.arn}"
     Resource: "*"
+  environment: ${file(env.yml):variables}
 
 # you can overwrite defaults here
 #  stage: dev
