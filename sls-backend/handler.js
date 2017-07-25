@@ -2,6 +2,9 @@
 
 const AWS = require('aws-sdk');
 const SNS = new AWS.SNS();
+const PLATFORM_APPLICATION_ARN = "arn:aws:sns:us-east-1:095380879276:app/GCM/google_notifications";
+const MAIN_TOPIC_ARN = "arn:aws:sns:us-east-1:095380879276:notifications";
+
 
 module.exports.hello = (event, context, callback) => {
   const response = {
@@ -43,7 +46,7 @@ module.exports.notify = (event, context, callback) => {
     // PhoneNumber: 'STRING_VALUE',
      Subject: 'My first message',
     // TargetArn: 'STRING_VALUE',
-    TopicArn: 'arn:aws:sns:us-east-1:095380879276:notifications'
+    TopicArn: MAIN_TOPIC_ARN
   };
   SNS.publish(params, function(err, data) {
     if (err) console.log(err, err.stack); // an error occurred
@@ -54,52 +57,83 @@ module.exports.notify = (event, context, callback) => {
 
 };
 
-
+/** REQUEST BODY:
+{
+	"data" : {
+	      "registrationId" : "12345ABC"
+	    }
+}
+*/
   module.exports.subscribe = (event, context, callback) => {
-    msg = JSON.parse(event);
-    registrationId = msg.input.body.registrationId
-
-
-    const response = {
-      statusCode: 200,
-      body: JSON.stringify({
-        message: registrationId,
-        input: event,
-      }),
-    };
-
-    callback(null, response);
-    /**function snsSubscribe(EndpointArn){
-      var params = {
-        Protocol: 'application',
-        TopicArn: 'arn:aws:sns:us-east-1:095380879276:notifications',
-        Endpoint: EndpointArn
+    //registrationId = msg.data.registrationId;
+    if(event.body == null){
+      const response = {
+        statusCode: 400,
+        body: JSON.stringify({
+          message: "Request does not contain the registrationId",
+          input: event,
+        }),
       };
-      sns.subscribe(params, function(err, data) {
-        if (err) console.log(err, err.stack); // an error occurred
-        else     console.log(data);           // successful response
+      callback(null, response);
+    }else{
+      //TO_DO: Check if body contains the right information
+      var msg = JSON.parse(event.body);
+      var registrationId = msg.data.registrationId;
+
+      var EndpointParams = {
+        PlatformApplicationArn: PLATFORM_APPLICATION_ARN,
+        Token: registrationId,
+        CustomUserData: 'My Test Value'
+      };
+
+      SNS.createPlatformEndpoint(EndpointParams, function(err, data) {
+        if (err) {
+          console.log(err, err.stack); // an error occurred
+
+          const response = {
+            statusCode: 500,
+            body: JSON.stringify({
+              message: "Creation of Platform Endpoint failed"
+            }),
+          };
+          callback(null, response);
+
+        }else{
+          console.log(data);           // successful response
+          var EndpointArn = data.EndpointArn;
+
+          var SubParams = {
+            Protocol: 'application',
+            TopicArn: MAIN_TOPIC_ARN,
+            Endpoint: EndpointArn
+          };
+
+          SNS.subscribe(SubParams, function(err, data) {
+            if (err) {
+              console.log(err, err.stack); // an error occurred
+              const response = {
+                statusCode: 500,
+                body: JSON.stringify({
+                  message: "Subscription failed"
+                }),
+              };
+              callback(null, response);
+            }else{
+              console.log(data);           // successful response
+
+              const response = {
+                statusCode: 200,
+                body: JSON.stringify({
+                  message: "Subscription successful",
+                  Subscription: data.SubscriptionArn
+                }),
+              };
+              callback(null, response);
+            }
+          });
+
+        }
       });
-    }*/
 
-    //console.log(event);
-    //registrationId = event.registrationId;
-
-    /**
-    var params = {
-      PlatformApplicationArn: 'arn:aws:sns:us-east-1:095380879276:app/GCM/google_notifications',
-      Token: 'registrationId'
-    };
-    sns.createPlatformEndpoint(params, function(err, data) {
-      if (err) {
-        console.log(err, err.stack); // an error occurred
-      }else{
-        console.log(data);           // successful response
-        snsSubscribe(data.EndpointArn);
-        chrome.storage.local.set({registered: true});
-      }
-    });
-  */
-
-    // Use this code if you don't use the http event with the LAMBDA-PROXY integration
-    // callback(null, { message: 'Go Serverless v1.0! Your function executed successfully!', event });
+    }
   };

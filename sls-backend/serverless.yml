@@ -31,7 +31,9 @@ provider:
       - sns:SetTopicAttributes
       - sns:DeleteTopic
       - sns:Subscribe
-    Resource: "${file(env.yml):sns.dev.notifications.arn}"
+      - sns:CreatePlatformEndpoint
+    #Resource: "${file(env.yml):sns.dev.notifications.arn}"
+    Resource: "*"
 
 # you can overwrite defaults here
 #  stage: dev
@@ -69,6 +71,10 @@ functions:
   hello:
     handler: handler.hello
     description: Hello World
+    events:
+      - http:
+          path: hello
+          method: post
   notify:
     handler: handler.notify
     description: send a simple notification to an SNS service
