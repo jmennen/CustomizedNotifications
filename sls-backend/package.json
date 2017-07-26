@@ -10,5 +10,9 @@
     "serverless"
   ],
   "author": "Jan Mennen",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "aws-sdk": "^2.7.27",
+    "uuid": "^3.0.1"
+  }
 }

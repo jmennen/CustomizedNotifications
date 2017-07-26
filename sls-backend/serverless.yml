@@ -34,6 +34,15 @@ provider:
       - sns:CreatePlatformEndpoint
     #Resource: "${file(env.yml):sns.dev.notifications.arn}"
     Resource: "*"
+  - Effect: Allow
+    Action:
+      - dynamodb:Query
+      - dynamodb:Scan
+      - dynamodb:GetItem
+      - dynamodb:PutItem
+      - dynamodb:UpdateItem
+      - dynamodb:DeleteItem
+    Resource: "${file(env.yml):dynamodb.arn}"
   environment: ${file(env.yml):variables}
 
 # you can overwrite defaults here
@@ -85,11 +94,60 @@ functions:
           method: post
   subscribe:
     handler: handler.subscribe
-    description: send a simple notification to an SNS service
+    description: subscribe to the master topic
     events:
       - http:
           path: subscribe
           method: post
+  subTopics:
+    handler: handler.subTopics
+    description: subscribe to a selection of topics
+    events:
+      - http:
+          path: subTopics
+          method: post
+  createTopic:
+    handler: handler.createTopic
+    events:
+      - http:
+          path: topics
+          method: post
+  readTopic:
+    handler: handler.readTopic
+    events:
+      - http:
+          path: topics/{id}
+          method: get
+          request:
+            parameters:
+              paths:
+                id: true
+  readTopics:
+    handler: handler.readAllTopics
+    events:
+      - http:
+          path: topics
+          method: get
+  updateTopic:
+    handler: handler.updateTopic
+    events:
+      - http:
+          path: topics/{id}
+          method: put
+          request:
+            parameters:
+              paths:
+                id: true
+  deleteTopic:
+    handler: handler.deleteTopic
+    events:
+      - http:
+          path: topics/{id}
+          method: delete
+          request:
+            parameters:
+              paths:
+                id: true
 
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
