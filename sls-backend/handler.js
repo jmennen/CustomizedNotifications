@@ -38,7 +38,7 @@ module.exports.readAllTopics = (event, context, callback) => {
 
 module.exports.updateTopic = (event, context, callback) => {
   console.log("request: " + JSON.stringify(event));
-  topics.update(event.pathParameters.id,event.body, callback);
+  topics.update(event.pathParameters.id, event.body, callback);
 };
 
 module.exports.deleteTopic = (event, context, callback) => {
@@ -82,7 +82,7 @@ Sending Notifications
 }
     */
 module.exports.notify = (event, context, callback) => {
-  if(event.body == null){
+  if (event.body == null) {
     const response = {
       statusCode: 400,
       body: JSON.stringify({
@@ -92,61 +92,61 @@ module.exports.notify = (event, context, callback) => {
     };
     console.log(event);
     callback(null, response);
-  }else{
+  } else {
     //TO_DO: Check if body contains the right information
     const msg = JSON.parse(event.body);
     const topicId = msg.data.topicId;
     const subject = msg.data.subject;
-    const message = msg.data.message; 
+    const message = msg.data.message;
     console.log(topicId);
     var dbParams = {
-      TableName : 'notification-topics',
+      TableName: 'notification-topics',
       Key: {
         id: topicId
       },
     };
-    DYNAMO.get(dbParams, function(err, data) {
-          if (err){
-            console.log(err);
+    DYNAMO.get(dbParams, function (err, data) {
+      if (err) {
+        console.log(err);
+        const response = {
+          statusCode: 500,
+          body: JSON.stringify({
+            message: "Topic not found"
+          }),
+        };
+        callback(null, response);
+      } else {
+        console.log(data.Item);
+        let notification = new Notification(topicId, subject, message);
+        var params = {
+          Message: JSON.stringify(notification),
+          Subject: subject,
+          TopicArn: data.Item.arn
+        };
+        SNS.publish(params, function (err, data) {
+          if (err) {
+            console.log(err, err.stack); // an error occurred
             const response = {
-                  statusCode: 500,
-                  body: JSON.stringify({
-                    message: "Topic not found"
-                  }),
-                };
-                callback(null, response);
-          }else{
-            console.log(data.Item);
-            let notification = new Notification(topicId, subject, message);
-            var params = {
-              Message: JSON.stringify(notification),
-              Subject: subject,
-              TopicArn: data.Item.arn
+              statusCode: 500,
+              body: JSON.stringify({
+                message: "Publishing failed"
+              }),
             };
-            SNS.publish(params, function(err, data) {
-              if (err){
-                console.log(err, err.stack); // an error occurred
-                const response = {
-                    statusCode: 500,
-                    body: JSON.stringify({
-                      message: "Publishing failed"
-                    }),
-                  };
-                  callback(null, response);
-              } 
-              else{
-                console.log(data);           // successful response
-                const response = {
-                  statusCode: 200,
-                  body: JSON.stringify({
-                    message: 'Notification sent successfully!',
-                    input: event,
-                  }),
-                };
-                callback(null, response);
-              }     
-            });
+            callback(null, response);
           }
+          else {
+            console.log(data);           // successful response
+            const response = {
+              statusCode: 200,
+              body: JSON.stringify({
+                message: 'Notification sent successfully!',
+                input: event,
+              }),
+            };
+            callback(null, response);
+          }
+        });
+      }
     }); //END Dynamo.get
 
   }
@@ -164,7 +164,7 @@ Subscription to the master topic
 }
 */
 module.exports.subscribe = (event, context, callback) => {
-  if(event.body == null){
+  if (event.body == null) {
     const response = {
       statusCode: 400,
       body: JSON.stringify({
@@ -173,7 +173,7 @@ module.exports.subscribe = (event, context, callback) => {
       }),
     };
     callback(null, response);
-  }else{
+  } else {
     //TO_DO: Check if body contains the right information
     var msg = JSON.parse(event.body);
     var registrationId = msg.data.registrationId;
@@ -184,7 +184,7 @@ module.exports.subscribe = (event, context, callback) => {
       CustomUserData: 'My Test Value'
     };
 
-    SNS.createPlatformEndpoint(EndpointParams, function(err, data) {
+    SNS.createPlatformEndpoint(EndpointParams, function (err, data) {
       if (err) {
         console.log(err, err.stack); // an error occurred
 
@@ -196,7 +196,7 @@ module.exports.subscribe = (event, context, callback) => {
         };
         callback(null, response);
 
-      }else{
+      } else {
         console.log(data);           // successful response
         var EndpointArn = data.EndpointArn;
 
@@ -206,7 +206,7 @@ module.exports.subscribe = (event, context, callback) => {
           Endpoint: EndpointArn
         };
 
-        SNS.subscribe(SubParams, function(err, data) {
+        SNS.subscribe(SubParams, function (err, data) {
           if (err) {
             console.log(err, err.stack); // an error occurred
             const response = {
@@ -216,7 +216,7 @@ module.exports.subscribe = (event, context, callback) => {
               }),
             };
             callback(null, response);
-          }else{
+          } else {
             console.log(data);           // successful response
 
             const response = {
@@ -250,7 +250,7 @@ Subscription to a selection of topics
 }
 */
 module.exports.subTopics = (event, context, callback) => {
-  if(event.body == null){
+  if (event.body == null) {
     const response = {
       statusCode: 400,
       body: JSON.stringify({
@@ -259,22 +259,22 @@ module.exports.subTopics = (event, context, callback) => {
       }),
     };
     callback(null, response);
-  }else{
+  } else {
     //TO_DO: Check if body contains the right information
     const msg = JSON.parse(event.body);
     const registrationId = msg.data.registrationId;
     const topics = msg.data.topicIDs;
 
-    for (var i = 0, len = topics.length; i < len; i++){
+    for (var i = 0, len = topics.length; i < len; i++) {
       //const topicID = JSON.stringify(topics[i]);
-      const topicID = topics[i];      
+      const topicID = topics[i];
       var EndpointParams = {
         PlatformApplicationArn: PLATFORM_APPLICATION_ARN,
         Token: registrationId,
         CustomUserData: 'My Test Value'
       };
 
-      SNS.createPlatformEndpoint(EndpointParams, function(err, data) {
+      SNS.createPlatformEndpoint(EndpointParams, function (err, data) {
         if (err) {
           console.log(err, err.stack); // an error occurred
 
@@ -286,31 +286,31 @@ module.exports.subTopics = (event, context, callback) => {
           };
           callback(null, response);
 
-        }else{
+        } else {
           console.log(data);           // successful response
           const EndpointArn = data.EndpointArn;
-          
+
           console.log(topicID);
           //TO_DO Query ARNs from Database by using the IDs
           var dbParams = {
-            TableName : 'notification-topics',
+            TableName: 'notification-topics',
             Key: {
               id: topicID
               //id: "c87ac480-72b7-11e7-b0e7-af916de722f7"
             },
           };
 
-          DYNAMO.get(dbParams, function(err, data) {
-            if (err){
+          DYNAMO.get(dbParams, function (err, data) {
+            if (err) {
               console.log(err);
               const response = {
-                    statusCode: 500,
-                    body: JSON.stringify({
-                      message: "Topic not found"
-                    }),
-                  };
-                  callback(null, response);
-            }else{
+                statusCode: 500,
+                body: JSON.stringify({
+                  message: "Topic not found"
+                }),
+              };
+              callback(null, response);
+            } else {
               console.log(data.Item);
 
               var SubParams = {
@@ -319,7 +319,7 @@ module.exports.subTopics = (event, context, callback) => {
                 Endpoint: EndpointArn
               };
 
-              SNS.subscribe(SubParams, function(error, result) {
+              SNS.subscribe(SubParams, function (error, result) {
                 if (err) {
                   console.log(error, error.stack); // an error occurred
                   const response = {
@@ -329,7 +329,7 @@ module.exports.subTopics = (event, context, callback) => {
                     }),
                   };
                   callback(null, response);
-                }else{
+                } else {
                   console.log(result);           // successful response
 
                   const response = {
@@ -342,7 +342,7 @@ module.exports.subTopics = (event, context, callback) => {
                   callback(null, response);
                 }
               }); //End of SNS.subscribe()
-            } 
+            }
           }); //End of db.get()
         }
       });

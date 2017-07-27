@@ -8,23 +8,23 @@ function registerCallback(registrationId) {
   }
 
   // Send the registration token to your application server and create an AWS SNS Endpoint
-  sendRegistrationId(registrationId, function(succeed) {
+  sendRegistrationId(registrationId, function (succeed) {
     // Once the registration token is received by your server,
     // set the flag such that register will not be invoked
     // next time when the app starts up.
     if (succeed)
-      chrome.storage.local.set({registered: true});
+      chrome.storage.local.set({ registered: true });
   });
 }
 
 function sendRegistrationId(registrationId, callback) {
-// Send the registration token to your application server
-// in a secure way.
-  chrome.storage.local.set({registrationId: registrationId});
+  // Send the registration token to your application server
+  // in a secure way.
+  chrome.storage.local.set({ registrationId: registrationId });
   msg = '{"data" : {"registrationId" : "' + registrationId + '"}}'
   //$.post(SUBSCRIBE_URL, JSON.stringify(data),  function( data ) {
   console.log("Nachricht: " + msg)
-  $.post(SUBSCRIBE_URL, msg,  function( data ) {
+  $.post(SUBSCRIBE_URL, msg, function (data) {
     console.log(data)
   });
 
@@ -32,9 +32,9 @@ function sendRegistrationId(registrationId, callback) {
 
 
 function firstRegistration() {
-  chrome.storage.local.get("registered", function(result) {
+  chrome.storage.local.get("registered", function (result) {
     // If already registered, bail out.
-    if (result["registered"]){
+    if (result["registered"]) {
       console.log("registered");
       return;
     }
@@ -56,8 +56,8 @@ function unregisterCallback() {
     console.log(chrome.runtime.lastError);
     return;
   }
-  else{
-    chrome.storage.local.set({registered: false});
+  else {
+    chrome.storage.local.set({ registered: false });
     console.log("unregister successful");
 
     //TO_DO: REMOVE AFTER TESTING
@@ -73,7 +73,7 @@ chrome.runtime.onInstalled.addListener(firstRegistration);
 chrome.runtime.onStartup.addListener(firstRegistration);
 
 
-chrome.gcm.onMessage.addListener(function(message){
+chrome.gcm.onMessage.addListener(function (message) {
   console.log("Incoming message!");
   var messageString = "";
   for (var key in message.data) {
@@ -90,5 +90,5 @@ chrome.gcm.onMessage.addListener(function(message){
     title: "SNS Notification",
     message: "messageString"
   }
-  chrome.notifications.create(options, function(){})
+  chrome.notifications.create(options, function () { })
 });
