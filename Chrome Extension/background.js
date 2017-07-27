@@ -20,6 +20,7 @@ function registerCallback(registrationId) {
 function sendRegistrationId(registrationId, callback) {
 // Send the registration token to your application server
 // in a secure way.
+  chrome.storage.local.set({registrationId: registrationId});
   msg = '{"data" : {"registrationId" : "' + registrationId + '"}}'
   //$.post(SUBSCRIBE_URL, JSON.stringify(data),  function( data ) {
   console.log("Nachricht: " + msg)
