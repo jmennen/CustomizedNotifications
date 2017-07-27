@@ -116,7 +116,6 @@ Subscription to the master topic
 }
 */
 module.exports.subscribe = (event, context, callback) => {
-  //registrationId = msg.data.registrationId;
   if(event.body == null){
     const response = {
       statusCode: 400,
@@ -203,7 +202,6 @@ Subscription to a selection of topics
 }
 */
 module.exports.subTopics = (event, context, callback) => {
-  //registrationId = msg.data.registrationId;
   if(event.body == null){
     const response = {
       statusCode: 400,
@@ -215,13 +213,13 @@ module.exports.subTopics = (event, context, callback) => {
     callback(null, response);
   }else{
     //TO_DO: Check if body contains the right information
-    var msg = JSON.parse(event.body);
-    var registrationId = msg.data.registrationId;
-    var topics = msg.data.topicIDs;
+    const msg = JSON.parse(event.body);
+    const registrationId = msg.data.registrationId;
+    const topics = msg.data.topicIDs;
 
-    for(topic in topics){
-
-      //TO_DO Query ARNs from Database by using the IDs
+    for (var i = 0, len = topics.length; i < len; i++){
+      //const topicID = JSON.stringify(topics[i]);
+      const topicID = topics[i];      
       var EndpointParams = {
         PlatformApplicationArn: PLATFORM_APPLICATION_ARN,
         Token: registrationId,
@@ -242,38 +240,62 @@ module.exports.subTopics = (event, context, callback) => {
 
         }else{
           console.log(data);           // successful response
-          var EndpointArn = data.EndpointArn;
-
-          var SubParams = {
-            Protocol: 'application',
-            TopicArn: MAIN_TOPIC_ARN,
-            Endpoint: EndpointArn
+          const EndpointArn = data.EndpointArn;
+          
+          console.log(topicID);
+          //TO_DO Query ARNs from Database by using the IDs
+          var dbParams = {
+            TableName : 'notification-topics',
+            Key: {
+              id: topicID
+              //id: "c87ac480-72b7-11e7-b0e7-af916de722f7"
+            },
           };
 
-          SNS.subscribe(SubParams, function(err, data) {
-            if (err) {
-              console.log(err, err.stack); // an error occurred
+          DYNAMO.get(dbParams, function(err, data) {
+            if (err){
+              console.log(err);
               const response = {
-                statusCode: 500,
-                body: JSON.stringify({
-                  message: "Subscription failed"
-                }),
-              };
-              callback(null, response);
+                    statusCode: 500,
+                    body: JSON.stringify({
+                      message: "Topic not found"
+                    }),
+                  };
+                  callback(null, response);
             }else{
-              console.log(data);           // successful response
+              console.log(data.Item);
 
-              const response = {
-                statusCode: 200,
-                body: JSON.stringify({
-                  message: "Subscription successful",
-                  Subscription: data.SubscriptionArn
-                }),
+              var SubParams = {
+                Protocol: 'application',
+                TopicArn: data.Item.arn,
+                Endpoint: EndpointArn
               };
-              callback(null, response);
-            }
-          });
 
+              SNS.subscribe(SubParams, function(error, result) {
+                if (err) {
+                  console.log(error, error.stack); // an error occurred
+                  const response = {
+                    statusCode: 500,
+                    body: JSON.stringify({
+                      message: "Subscription failed"
+                    }),
+                  };
+                  callback(null, response);
+                }else{
+                  console.log(result);           // successful response
+
+                  const response = {
+                    statusCode: 200,
+                    body: JSON.stringify({
+                      message: "Subscription successful",
+                      Subscription: data.SubscriptionArn
+                    }),
+                  };
+                  callback(null, response);
+                }
+              }); //End of SNS.subscribe()
+            } 
+          }); //End of db.get()
         }
       });
 
