@@ -1,5 +1,6 @@
 'use strict';
 const uuid = require('uuid');
+const MAIN_TOPIC_ARN = process.env.mainTopicArn;
 
 class Topics {
   constructor(db, sns) {
@@ -13,6 +14,7 @@ class Topics {
     const newId = uuid.v1();
     const newName = body.data.name;
     const db = this.db;
+    const sns = this.sns;
     if (typeof body.data.name !== 'string') {
         console.error('Validation Failed');
         callback(new Error('Body did not contain a text property.'));
@@ -43,12 +45,35 @@ class Topics {
                 callback(new Error('Could not save record.'));
                 return;
             }
+            
             console.log(result);
             // create a response
             const responseBody = {
               id: newId,
               name: newName
             }
+
+            var params = {
+                Message: JSON.stringify(responseBody), /* required */
+                // MessageAttributes: {
+                // '<String>': {
+                //   DataType: 'JSON', /* required */
+                //   BinaryValue: new Buffer('...') || 'STRING_VALUE',
+                //   StringValue: 'STRING_VALUE'
+                // },
+                /* '<String>': ... */
+                // },
+                // MessageStructure: 'STRING_VALUE',
+                // PhoneNumber: 'STRING_VALUE',
+                Subject: 'NewTopic',
+                // TargetArn: 'STRING_VALUE',
+                TopicArn: MAIN_TOPIC_ARN
+            };
+            sns.publish(params, function(err, data) {
+                if (err) console.log(err, err.stack); // an error occurred
+                else     console.log(data);           // successful response
+            });
+
             const response = {
                 statusCode: 200,
                 body: JSON.stringify(responseBody)
@@ -158,9 +183,35 @@ class Topics {
             }else{
                 console.log(data);           // successful response
                 // create a response
+                const responseBody = {
+                    id: result.Attributes.id,
+                    name: result.Attributes.name
+                }
+
+                var params = {
+                    Message: JSON.stringify(responseBody), /* required */
+                    // MessageAttributes: {
+                    // '<String>': {
+                    //   DataType: 'JSON', /* required */
+                    //   BinaryValue: new Buffer('...') || 'STRING_VALUE',
+                    //   StringValue: 'STRING_VALUE'
+                    // },
+                    /* '<String>': ... */
+                    // },
+                    // MessageStructure: 'STRING_VALUE',
+                    // PhoneNumber: 'STRING_VALUE',
+                    Subject: 'TopicDeleted',
+                    // TargetArn: 'STRING_VALUE',
+                    TopicArn: MAIN_TOPIC_ARN
+                };
+                sns.publish(params, function(err, data) {
+                    if (err) console.log(err, err.stack); // an error occurred
+                    else     console.log(data);           // successful response
+                });
+
                 const response = {
                     statusCode: 200,
-                    body: JSON.stringify(result),
+                    body: JSON.stringify(responseBody),
                 };
                 callback(null, response);
             }     
