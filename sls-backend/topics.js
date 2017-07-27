@@ -66,7 +66,7 @@ class Topics {
   }
 
 
-
+  //TO_DO
   get(id, callback) {
     if (typeof id !== 'string') {
         console.error('Validation Failed');
@@ -97,7 +97,7 @@ class Topics {
     });
   }
 
-
+  //TO_DO
   getAll(callback) {
 
     const params = {
@@ -123,36 +123,53 @@ class Topics {
 
 
   delete(id, callback) {
-    console.log(id)
+    console.log(id);
+    const sns = this.sns;
     if (typeof id !== 'string') {
         console.error('Validation Failed');
         callback(new Error('Invalid ID'));
         return;
     }
+    const queryId = id;
 
-    const params = {
+    const dbParams = {
         TableName: 'notification-topics',
         Key: {
-            id: id
+            id: queryId
         },
+        ReturnValues: "ALL_OLD"
     };
 
-    this.db.delete(params, (error, result) => {
+    this.db.delete(dbParams, (error, result) => {
         if (error) {
             console.error(error);
-            callback(new Error('Could not save record.'));
+            callback(new Error('Could not delete database entry.'));
             return;
         }
-
-        // create a response
-        const response = {
-            statusCode: 200
+        console.log(result);
+        const snsParams = {
+            TopicArn: result.Attributes.arn
         };
-        callback(null, response);
+        sns.deleteTopic(snsParams, (err, data) => {
+            if (err){
+                console.error(err);
+                callback(new Error('Could not delete SNS topic.'));
+                return;
+            }else{
+                console.log(data);           // successful response
+                // create a response
+                const response = {
+                    statusCode: 200,
+                    body: JSON.stringify(result),
+                };
+                callback(null, response);
+            }     
+
+        });
     });
   }
 
-
+  //TO_DO
   update(id, content, callback) {
     const body = JSON.parse(content);
     if (typeof body.data.name !== 'string') {
