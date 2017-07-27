@@ -4,6 +4,7 @@ const AWS = require('aws-sdk');
 const SNS = new AWS.SNS();
 const DYNAMO = new AWS.DynamoDB.DocumentClient();
 const Topics = require('topics');
+const Notification = require('notification');
 
 const PLATFORM_APPLICATION_ARN = process.env.platformApplicationArn;
 const MAIN_TOPIC_ARN = process.env.mainTopicArn;
@@ -61,6 +62,8 @@ module.exports.hello = (event, context, callback) => {
       input: event,
     }),
   };
+  let notification = new Notification("smapleId", "Sample subject", 'sample message');
+  console.log(notification);
 
   callback(null, response);
 
@@ -114,9 +117,9 @@ module.exports.notify = (event, context, callback) => {
                 callback(null, response);
           }else{
             console.log(data.Item);
-
+            let notification = new Notification(topicId, subject, message);
             var params = {
-              Message: message,
+              Message: JSON.stringify(notification),
               Subject: subject,
               TopicArn: data.Item.arn
             };

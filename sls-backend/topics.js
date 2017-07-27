@@ -1,6 +1,7 @@
 'use strict';
 const uuid = require('uuid');
 const MAIN_TOPIC_ARN = process.env.mainTopicArn;
+const Notification = require('notification');
 
 class Topics {
   constructor(db, sns) {
@@ -52,21 +53,11 @@ class Topics {
               id: newId,
               name: newName
             }
+            let notification = new Notification("main", "NewTopic", responseBody);
 
             var params = {
-                Message: JSON.stringify(responseBody), /* required */
-                // MessageAttributes: {
-                // '<String>': {
-                //   DataType: 'JSON', /* required */
-                //   BinaryValue: new Buffer('...') || 'STRING_VALUE',
-                //   StringValue: 'STRING_VALUE'
-                // },
-                /* '<String>': ... */
-                // },
-                // MessageStructure: 'STRING_VALUE',
-                // PhoneNumber: 'STRING_VALUE',
+                Message: JSON.stringify(notification), 
                 Subject: 'NewTopic',
-                // TargetArn: 'STRING_VALUE',
                 TopicArn: MAIN_TOPIC_ARN
             };
             sns.publish(params, function(err, data) {
@@ -188,20 +179,11 @@ class Topics {
                     name: result.Attributes.name
                 }
 
+                let notification = new Notification("main", "DeleteTopic", responseBody);
+
                 var params = {
-                    Message: JSON.stringify(responseBody), /* required */
-                    // MessageAttributes: {
-                    // '<String>': {
-                    //   DataType: 'JSON', /* required */
-                    //   BinaryValue: new Buffer('...') || 'STRING_VALUE',
-                    //   StringValue: 'STRING_VALUE'
-                    // },
-                    /* '<String>': ... */
-                    // },
-                    // MessageStructure: 'STRING_VALUE',
-                    // PhoneNumber: 'STRING_VALUE',
+                    Message: JSON.stringify(notification), 
                     Subject: 'TopicDeleted',
-                    // TargetArn: 'STRING_VALUE',
                     TopicArn: MAIN_TOPIC_ARN
                 };
                 sns.publish(params, function(err, data) {
