@@ -28,6 +28,33 @@ function sendRegistrationId(registrationId, callback) {
     console.log(data)
   });
 
+  //REMOVE AFTER SETTING THE SUBSCRIBES TOPICS
+  var dic = {
+  "topics": [
+    {
+      "id":"sampleId1",
+      "name":"Topic 1",
+      "status": true
+    },
+    {
+      "id":"sampleId2",
+      "name":"Topic 2",
+      "status": false
+    },
+    {
+      "id":"sampleId3",
+      "name":"Topic 3",
+      "status": false
+    },
+    {
+      "id":"sampleId4",
+      "name":"Topic 4",
+      "status": true
+    },
+  ]
+};
+
+chrome.storage.local.set(dic);
 }
 
 
@@ -63,6 +90,14 @@ function unregisterCallback() {
     //TO_DO: REMOVE AFTER TESTING
     //firstRegistration();
   }
+}
+
+//TO_DO
+function subscribeTopics(topics) {
+  // Subscribe to a selection of topics
+  console.log("submit topic subscriptions");
+  console.log(topics);
+  return;
 }
 
 //TO_DO: REMOVE AFTER TESTING
