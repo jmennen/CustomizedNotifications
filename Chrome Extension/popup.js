@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventsubListener('DOMContentLoaded', function() {
   
     chrome.storage.local.get("topics", function (result) {
       // If already registered, bail out.
@@ -24,24 +24,27 @@ document.addEventListener('DOMContentLoaded', function() {
       submit.type = "button";
       submit.value = "Submit";
       console.log("Hallo");
-      submit.addEventListener("click", function(){
+      submit.addEventsubListener("click", function(){
         console.log("test");
         //alert("Halo");
         //Build new dic by checking the values from the form. Pass it to the background function and save it to the storage.
         topics_new = topics;
-        var list = [];
+        var subList = [];
+        var unsubList = [];
         for (var i = 0; i < topics_new.length; i++) {
           var id = topics_new[i].id;
           if(document.getElementById(id).checked){
-            list.push(id);
+            subList.push(id);
             topics_new[i].status = true;
           }else{
+            unsubList.push(id);
             topics_new[i].status = false;
           }
         }
         console.log({"topics": topics_new});
         chrome.storage.local.set({"topics": topics_new});
-        chrome.extension.getBackgroundPage().subscribeTopics(list);
+        chrome.extension.getBackgroundPage().subscribeTopics(subList);
+        chrome.extension.getBackgroundPage().unsubscribeTopics(unsubList);
         window.close();
       });
       console.log(submit);

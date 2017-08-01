@@ -100,6 +100,14 @@ function subscribeTopics(topics) {
   return;
 }
 
+//TO_DO
+function unsubscribeTopics(topics) {
+  // Subscribe to a selection of topics
+  console.log("submit topic subscriptions");
+  console.log(topics);
+  return;
+}
+
 //TO_DO: REMOVE AFTER TESTING
 //chrome.gcm.unregister(unregisterCallback);
 
