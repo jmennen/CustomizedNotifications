@@ -44,10 +44,11 @@ function sendRegistrationId(registrationId, callback) {
       }
       chrome.storage.local.set({"topics": saveTopics});
       subscribeTopics(subTopics);
+      callback(true);
     }else{
       console.log("Error");
+      callback(false);
     }
-    callback(true);
   });
 
 }
