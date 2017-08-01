@@ -171,20 +171,46 @@ chrome.runtime.onStartup.addListener(firstRegistration);
 
 chrome.gcm.onMessage.addListener(function (message) {
   console.log("Incoming message!");
-  var messageString = "";
-  for (var key in message.data) {
-    if (messageString != "")
-      messageString += ", "
-    messageString += key + ":" + message.data[key];
+  var msg = JSON.parse(message.data.default);
+  console.log(msg);
+  if(msg.topicId=="main" && msg.subject=="NewTopic"){
+    
+    chrome.storage.local.get("topics", function (result) {
+      var topics = result.topics;
+      var topic = {
+          "id":msg.message.id,
+          "name":msg.message.name,
+          "status": false
+        }
+      topics.push(topic);
+      chrome.storage.local.set({"topics": topics})
+    });
+    
+    options = {
+      type: "basic",
+      iconUrl: "icon.png",
+      title: "New Topic",
+      message: "The topic " + msg.message.name + " was added. Subscribe now in the menu."
+    }
+  }else if(msg.topicId=="main" && msg.subject=="DeleteTopic"){
+      chrome.storage.local.get("topics", function (result) {
+        var topics = result.topics;
+        var newTopics = topics.filter( topic =>  topic.id != msg.message.id );
+        chrome.storage.local.set({"topics": newTopics})
+      });
+    options = {
+      type: "basic",
+      iconUrl: "icon.png",
+      title: "Topic removed",
+      message: "The topic " + msg.message.name + " was removed."
+    }
+  }else{
+    options = {
+      type: "basic",
+      iconUrl: "icon.png",
+      title: msg.subject,
+      message: msg.message
   }
-  console.log("Message received: " + messageString);
-
-  // Pop up a notification to show the GCM message.
-  options = {
-    type: "basic",
-    iconUrl: "icon.png",
-    title: "SNS Notification",
-    message: "messageString"
-  }
+}
   chrome.notifications.create(options, function () { })
 });
