@@ -49,35 +49,6 @@ function sendRegistrationId(registrationId, callback) {
     }
   });
 
-  //REMOVE AFTER SETTING THE SUBSCRIBES TOPICS
-  /**
-  var dic = {
-  "topics": [
-    {
-      "id":"sampleId1",
-      "name":"Topic 1",
-      "status": true
-    },
-    {
-      "id":"sampleId2",
-      "name":"Topic 2",
-      "status": false
-    },
-    {
-      "id":"sampleId3",
-      "name":"Topic 3",
-      "status": false
-    },
-    {
-      "id":"sampleId4",
-      "name":"Topic 4",
-      "status": true
-    },
-  ]
-};
-*/
-
-
 }
 
 
@@ -116,19 +87,76 @@ function unregisterCallback() {
 }
 
 //TO_DO
+/**
+ * {
+      "data" : {
+            "registrationId" : "12345ABC",
+            "topicIDs" : ["ID1", "ID2", "ID3" ]
+          }
+    }
+ *  
+ */
 function subscribeTopics(topics) {
-  // Subscribe to a selection of topics
+  if(topics.length === 0){
+    console.log("no topics to ubscribe");
+    return;
+  }
   console.log("submit topic subscriptions");
   console.log(topics);
-  return;
+  chrome.storage.local.get("registrationId", function (result) {
+    if (result["registrationId"]) {
+      var msg = {
+        "data" : {
+              "registrationId" : result["registrationId"],
+              "topicIDs" : topics
+            }
+      }
+
+      $.post(SUBSCRIBE_URL + 'subTopics', JSON.stringify(msg), function (data) {
+        if(data.message == "Subscription successful"){
+          console.log("Subscription successful");
+        }else{
+          console.log("Error");
+        }
+      });
+      return;
+      
+    }  
+
+  });
+  
 }
 
 //TO_DO
 function unsubscribeTopics(topics) {
-  // Subscribe to a selection of topics
+  if(topics.length === 0){
+    console.log("no topics to unsubscribe");
+    return;
+  }
   console.log("submit topic unsubscriptions");
   console.log(topics);
-  return;
+  chrome.storage.local.get("registrationId", function (result) {
+    if (result["registrationId"]) {
+      var msg = {
+        "data" : {
+              "registrationId" : result["registrationId"],
+              "topicIDs" : topics
+            }
+      }
+
+      $.post(SUBSCRIBE_URL + 'unsubTopics', JSON.stringify(msg), function (data) {
+        console.log(data);
+        if(data.message == "Unsubscribe successful"){
+          console.log("Unsubscribe successful");
+        }else{
+          console.log("Error");
+        }
+      });
+      return;
+      
+    }  
+
+  });
 }
 
 //TO_DO: REMOVE AFTER TESTING

@@ -486,7 +486,7 @@ module.exports.unsubTopics = (event, context, callback) => {
                       const response = {
                         statusCode: 200,
                         body: JSON.stringify({
-                          message: "Insubscribe successful"
+                          message: "Unsubscribe successful"
                         }),
                       };
                       callback(null, response);
