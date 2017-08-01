@@ -31,6 +31,7 @@ provider:
       - sns:SetTopicAttributes
       - sns:DeleteTopic
       - sns:Subscribe
+      - sns:Unsubscribe
       - sns:CreatePlatformEndpoint
     #Resource: "${file(env.yml):sns.dev.notifications.arn}"
     Resource: "*"
@@ -105,6 +106,13 @@ functions:
     events:
       - http:
           path: subTopics
+          method: post
+  unsubTopics:
+    handler: handler.unsubTopics
+    description: unsubscribe from a selection of topics
+    events:
+      - http:
+          path: unsubTopics
           method: post
   createTopic:
     handler: handler.createTopic

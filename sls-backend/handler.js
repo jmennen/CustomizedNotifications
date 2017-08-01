@@ -353,3 +353,140 @@ module.exports.subTopics = (event, context, callback) => {
 
   } // End of Check if event.body is null
 }; // End of subTopic function
+
+
+/**
+Unsubscribe from a selection of topics
+*/
+/** REQUEST BODY
+{
+	"data" : {
+	      "registrationId" : "12345ABC",
+        "topicIDs" : ["ID1", "ID2", "ID3" ]
+	    }
+}
+*/
+module.exports.unsubTopics = (event, context, callback) => {
+  if (event.body == null) {
+    const response = {
+      statusCode: 400,
+      body: JSON.stringify({
+        message: "Request does not contain the registrationId",
+        input: event,
+      }),
+    };
+    callback(null, response);
+  } else {
+    //TO_DO: Check if body contains the right information
+    const msg = JSON.parse(event.body);
+    const registrationId = msg.data.registrationId;
+    const topics = msg.data.topicIDs;
+
+    for (var i = 0, len = topics.length; i < len; i++) {
+      //const topicID = JSON.stringify(topics[i]);
+      const topicID = topics[i];
+      var EndpointParams = {
+        PlatformApplicationArn: PLATFORM_APPLICATION_ARN,
+        Token: registrationId,
+        CustomUserData: 'My Test Value'
+      };
+
+      SNS.createPlatformEndpoint(EndpointParams, function (err, data) {
+        if (err) {
+          console.log(err, err.stack); // an error occurred
+
+          const response = {
+            statusCode: 500,
+            body: JSON.stringify({
+              message: "Creation of Platform Endpoint failed"
+            }),
+          };
+          callback(null, response);
+
+        } else {
+          console.log(data);           // successful response
+          const EndpointArn = data.EndpointArn;
+
+          console.log(topicID);
+          //TO_DO Query ARNs from Database by using the IDs
+          var dbParams = {
+            TableName: 'notification-topics',
+            Key: {
+              id: topicID
+              //id: "c87ac480-72b7-11e7-b0e7-af916de722f7"
+            },
+          };
+
+          DYNAMO.get(dbParams, function (err, data) {
+            if (err) {
+              console.log(err);
+              const response = {
+                statusCode: 500,
+                body: JSON.stringify({
+                  message: "Topic not found"
+                }),
+              };
+              callback(null, response);
+            } else {
+              console.log(data.Item);
+
+              var SubParams = {
+                Protocol: 'application',
+                TopicArn: data.Item.arn,
+                Endpoint: EndpointArn
+              };
+
+              SNS.subscribe(SubParams, function (error, result) {
+                if (err) {
+                  console.log(error, error.stack); // an error occurred
+                  const response = {
+                    statusCode: 500,
+                    body: JSON.stringify({
+                      message: "Subscription failed"
+                    }),
+                  };
+                  callback(null, response);
+                } else {
+                  console.log(result);           // successful response
+
+                  var unsubParams = {
+                    SubscriptionArn: result.SubscriptionArn
+                  };
+                  
+                  SNS.unsubscribe(unsubParams, function(err, data){
+                    if(err){
+                      console.log(err, err.stack); // an error occurred
+                      const response = {
+                        statusCode: 500,
+                        body: JSON.stringify({
+                          message: "Unsubscribe failed"
+                        }),
+                      };
+                      callback(null, response);
+                    }else{
+                      console.log(data);
+                      const response = {
+                        statusCode: 200,
+                        body: JSON.stringify({
+                          message: "Insubscribe successful"
+                        }),
+                      };
+                      callback(null, response);
+                    }
+
+                  });
+
+                  
+                }
+              }); //End of SNS.subscribe()
+            }
+          }); //End of db.get()
+        }
+      });
+
+
+    } //End for loop
+
+
+  } // End of Check if event.body is null
+}; // End of unsubTopic function
