@@ -1,4 +1,4 @@
-SUBSCRIBE_URL = "https://kdi53jhksc.execute-api.us-east-1.amazonaws.com/dev/subscribe"
+SUBSCRIBE_URL = "https://kdi53jhksc.execute-api.us-east-1.amazonaws.com/dev/"
 
 function registerCallback(registrationId) {
   if (chrome.runtime.lastError) {
@@ -24,7 +24,7 @@ function sendRegistrationId(registrationId, callback) {
   msg = '{"data" : {"registrationId" : "' + registrationId + '"}}'
   //$.post(SUBSCRIBE_URL, JSON.stringify(data),  function( data ) {
   console.log("Nachricht: " + msg)
-  $.post(SUBSCRIBE_URL, msg, function (data) {
+  $.post(SUBSCRIBE_URL + 'subscribe', msg, function (data) {
     console.log(data)
   });
 
