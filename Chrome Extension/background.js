@@ -47,6 +47,7 @@ function sendRegistrationId(registrationId, callback) {
     }else{
       console.log("Error");
     }
+    callback(true);
   });
 
 }
