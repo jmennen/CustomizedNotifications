@@ -118,6 +118,10 @@ class Topics {
 
     const params = {
         TableName: 'notification-topics',
+        AttributesToGet: [
+            'id',
+            'name'
+        ],
     };
 
     this.db.scan(params, (error, result) => {
