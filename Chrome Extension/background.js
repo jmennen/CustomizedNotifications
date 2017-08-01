@@ -7,6 +7,9 @@ function registerCallback(registrationId) {
     return;
   }
 
+  //Saces the registration Id for further requests
+  chrome.storage.local.set({ registrationId: registrationId });
+
   // Send the registration token to your application server and create an AWS SNS Endpoint
   sendRegistrationId(registrationId, function (succeed) {
     // Once the registration token is received by your server,
@@ -17,18 +20,37 @@ function registerCallback(registrationId) {
   });
 }
 
+//CALLING CALLBACK MISSING TO set the "registered" variable
 function sendRegistrationId(registrationId, callback) {
   // Send the registration token to your application server
   // in a secure way.
-  chrome.storage.local.set({ registrationId: registrationId });
   msg = '{"data" : {"registrationId" : "' + registrationId + '"}}'
   //$.post(SUBSCRIBE_URL, JSON.stringify(data),  function( data ) {
-  console.log("Nachricht: " + msg)
+  console.log("Nachricht: " + msg);
   $.post(SUBSCRIBE_URL + 'subscribe', msg, function (data) {
-    console.log(data)
+    if(data.message == "Subscription successful"){
+      console.log(data);
+      var inputTopics = data.topics;
+      var saveTopics = [];
+      var subTopics = [];
+      for(i=0; i < inputTopics.length; i++){
+        var topic = {
+          "id":inputTopics[i].id,
+          "name":inputTopics[i].name,
+          "status": true
+        }
+        saveTopics.push(topic);
+        subTopics.push(inputTopics[i].id);
+      }
+      chrome.storage.local.set({"topics": saveTopics});
+      subscribeTopics(subTopics);
+    }else{
+      console.log("Error");
+    }
   });
 
   //REMOVE AFTER SETTING THE SUBSCRIBES TOPICS
+  /**
   var dic = {
   "topics": [
     {
@@ -53,8 +75,9 @@ function sendRegistrationId(registrationId, callback) {
     },
   ]
 };
+*/
 
-chrome.storage.local.set(dic);
+
 }
 
 
@@ -103,7 +126,7 @@ function subscribeTopics(topics) {
 //TO_DO
 function unsubscribeTopics(topics) {
   // Subscribe to a selection of topics
-  console.log("submit topic subscriptions");
+  console.log("submit topic unsubscriptions");
   console.log(topics);
   return;
 }

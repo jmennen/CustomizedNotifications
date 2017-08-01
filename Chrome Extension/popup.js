@@ -1,4 +1,4 @@
-document.addEventsubListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function() {
   
     chrome.storage.local.get("topics", function (result) {
       // If already registered, bail out.
@@ -24,7 +24,7 @@ document.addEventsubListener('DOMContentLoaded', function() {
       submit.type = "button";
       submit.value = "Submit";
       console.log("Hallo");
-      submit.addEventsubListener("click", function(){
+      submit.addEventListener("click", function(){
         console.log("test");
         //alert("Halo");
         //Build new dic by checking the values from the form. Pass it to the background function and save it to the storage.
