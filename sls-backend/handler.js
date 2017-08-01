@@ -219,14 +219,32 @@ module.exports.subscribe = (event, context, callback) => {
           } else {
             console.log(data);           // successful response
 
-            const response = {
-              statusCode: 200,
-              body: JSON.stringify({
-                message: "Subscription successful",
-                Subscription: data.SubscriptionArn
-              }),
-            };
-            callback(null, response);
+            topics.getAll(function (err, data){
+              if (err){
+                console.log(err, err.stack); // an error occurred
+                const response = {
+                  statusCode: 500,
+                  body: JSON.stringify({
+                    message: "Could not get topics"
+                  }),
+                };
+                callback(null, response);
+              }else{
+                let items = JSON.parse(data.body).Items;
+                console.log(items);
+                const response = {
+                statusCode: 200,
+                body: JSON.stringify({
+                  message: "Subscription successful",
+                  topics: items
+                }),
+              };
+              callback(null, response);
+
+              }
+
+            });
+
           }
         });
 
