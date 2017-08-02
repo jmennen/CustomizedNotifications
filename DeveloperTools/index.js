@@ -3,7 +3,7 @@
 var https = require('https');
 var request = require('request');
 
-class Tools {
+class CustomNotificationTools {
     
     
     /**
@@ -64,4 +64,4 @@ class Tools {
 
 }
 
-module.exports = Tools;
+module.exports = CustomNotificationTools;
