@@ -219,8 +219,8 @@ module.exports.subscribe = (event, context, callback) => {
           } else {
             console.log(data);           // successful response
 
-            topics.getAll(function (err, data){
-              if (err){
+            topics.getAll(function (err, data) {
+              if (err) {
                 console.log(err, err.stack); // an error occurred
                 const response = {
                   statusCode: 500,
@@ -229,17 +229,17 @@ module.exports.subscribe = (event, context, callback) => {
                   }),
                 };
                 callback(null, response);
-              }else{
+              } else {
                 let items = JSON.parse(data.body).Items;
                 console.log(items);
                 const response = {
-                statusCode: 200,
-                body: JSON.stringify({
-                  message: "Subscription successful",
-                  topics: items
-                }),
-              };
-              callback(null, response);
+                  statusCode: 200,
+                  body: JSON.stringify({
+                    message: "Subscription successful",
+                    topics: items
+                  }),
+                };
+                callback(null, response);
 
               }
 
@@ -470,9 +470,9 @@ module.exports.unsubTopics = (event, context, callback) => {
                   var unsubParams = {
                     SubscriptionArn: result.SubscriptionArn
                   };
-                  
-                  SNS.unsubscribe(unsubParams, function(err, data){
-                    if(err){
+
+                  SNS.unsubscribe(unsubParams, function (err, data) {
+                    if (err) {
                       console.log(err, err.stack); // an error occurred
                       const response = {
                         statusCode: 500,
@@ -481,7 +481,7 @@ module.exports.unsubTopics = (event, context, callback) => {
                         }),
                       };
                       callback(null, response);
-                    }else{
+                    } else {
                       console.log(data);
                       const response = {
                         statusCode: 200,
@@ -494,7 +494,7 @@ module.exports.unsubTopics = (event, context, callback) => {
 
                   });
 
-                  
+
                 }
               }); //End of SNS.subscribe()
             }
