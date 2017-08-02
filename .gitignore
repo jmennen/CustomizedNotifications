@@ -3,3 +3,4 @@ sls-backend/.serverless
 sls-backend/env.yml
 .vscode/
 DeveloperTools/out
+DeveloperTools/node_modules
