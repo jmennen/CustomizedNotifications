@@ -140,7 +140,7 @@ module.exports.notify = (event, context, callback) => {
               statusCode: 200,
               body: JSON.stringify({
                 message: 'Notification sent successfully!',
-                input: event,
+                input: msg,
               }),
             };
             callback(null, response);
