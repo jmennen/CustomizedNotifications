@@ -120,32 +120,12 @@ functions:
       - http:
           path: topics
           method: post
-  readTopic:
-    handler: handler.readTopic
-    events:
-      - http:
-          path: topics/{id}
-          method: get
-          request:
-            parameters:
-              paths:
-                id: true
   readTopics:
     handler: handler.readAllTopics
     events:
       - http:
           path: topics
           method: get
-  updateTopic:
-    handler: handler.updateTopic
-    events:
-      - http:
-          path: topics/{id}
-          method: put
-          request:
-            parameters:
-              paths:
-                id: true
   deleteTopic:
     handler: handler.deleteTopic
     events:
