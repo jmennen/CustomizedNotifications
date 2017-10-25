@@ -81,38 +81,6 @@ class Topics {
     */
   }
 
-
-  //TO_DO
-  get(id, callback) {
-    if (typeof id !== 'string') {
-        console.error('Validation Failed');
-        callback(new Error('Invalid ID'));
-        return;
-    }
-
-    const params = {
-        TableName: 'notification-topics',
-        Key: {
-            id: id
-        },
-    };
-
-    this.db.get(params, (error, result) => {
-        if (error) {
-            console.error(error);
-            callback(new Error('Could not save record.'));
-            return;
-        }
-
-        // create a response
-        const response = {
-            statusCode: 200,
-            body: JSON.stringify(result.Item),
-        };
-        callback(null, response);
-    });
-  }
-
   //TO_DO
   getAll(callback) {
 
@@ -204,51 +172,6 @@ class Topics {
 
         });
     });
-  }
-
-  //TO_DO
-  update(id, content, callback) {
-    const body = JSON.parse(content);
-    if (typeof body.data.name !== 'string') {
-        console.error('Validation Failed');
-        callback(new Error('Body did not contain a text property.'));
-        return;
-    }
-
-    if (typeof id !== 'string') {
-        console.error('Validation Failed');
-        callback(new Error('Invalid ID'));
-        return;
-    }
-
-    const params = {
-        TableName: 'notification-topics',
-        Key: {
-            id: id
-        },
-        AttributeUpdates: {
-          name: {
-            Action: "PUT",
-            Value: body.data.name
-          }
-        },
-    };
-
-    this.db.update(params, (error, result) => {
-        if (error) {
-            console.error(error);
-            callback(new Error('Could not save record.'));
-            return;
-        }
-
-        // create a response
-        const response = {
-            statusCode: 200,
-            body: JSON.stringify(result),
-        };
-        callback(null, response);
-    });
-
   }
 
 
