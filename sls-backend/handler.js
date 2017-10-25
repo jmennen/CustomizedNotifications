@@ -26,19 +26,9 @@ module.exports.createTopic = (event, context, callback) => {
   topics.create(event.body, callback);
 };
 
-module.exports.readTopic = (event, context, callback) => {
-  console.log("request: " + JSON.stringify(event));
-  topics.get(event.pathParameters.id, callback);
-};
-
 module.exports.readAllTopics = (event, context, callback) => {
   console.log("request: " + JSON.stringify(event));
   topics.getAll(callback);
-};
-
-module.exports.updateTopic = (event, context, callback) => {
-  console.log("request: " + JSON.stringify(event));
-  topics.update(event.pathParameters.id, event.body, callback);
 };
 
 module.exports.deleteTopic = (event, context, callback) => {
