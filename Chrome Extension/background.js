@@ -1,4 +1,5 @@
-SUBSCRIBE_URL = "https://kdi53jhksc.execute-api.us-east-1.amazonaws.com/dev/"
+SUBSCRIBE_URL = "ENTER_API_URL_HERE"
+GCM_ID = "ENTER_GCM_ID_HERE"
 
 function registerCallback(registrationId) {
   if (chrome.runtime.lastError) {
@@ -65,7 +66,7 @@ function firstRegistration() {
 
     console.log("unregistered");
     // Up to 100 senders are allowed.
-    var senderIds = ["546889298246"];
+    var senderIds = [GCM_ID];
     chrome.gcm.register(senderIds, registerCallback);
   });
 }
